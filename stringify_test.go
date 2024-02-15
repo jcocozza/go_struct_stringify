@@ -2,21 +2,20 @@ package gostructstringify
 
 import "testing"
 
+type testStruct struct {
+	A string
+	B int
+}
+type SuperStruct struct {
+	E string
+	F *testStruct
+}
+type SuperStructList struct {
+	G string
+	Lst []*testStruct
+}
+
 func Test_generateStructInstanceCode(t *testing.T) {
-
-	type testStruct struct {
-		A string
-		B int
-	}
-	type SuperStruct struct {
-		E string
-		F *testStruct
-	}
-	type SuperStructList struct {
-		G string
-		Lst []*testStruct
-	}
-
 	type args struct {
 		instance interface{}
 	}

@@ -11,24 +11,30 @@ import (
 //
 // i.e. "&myStruct{ A: a, B: 1}"
 func StructStringify(instance any) string {
+	code := ""
 	instanceValue := reflect.ValueOf(instance)
 	if instanceValue.Kind() == reflect.Ptr {
 		// If the input is a pointer, dereference it
 		instanceValue = instanceValue.Elem()
+		code += "&"
 	}
 
 	instanceType := instanceValue.Type()
 
 	if instanceType.Kind() == reflect.Slice {
-		code := instanceType.String() +"{"
+		code += instanceType.String() +"{"
 		for i := 0; i < instanceValue.Len(); i++ {
-			code += StructStringify(instanceValue.Index(i).Interface()) + ", "
+			if i == instanceValue.Len() - 1 {
+				code += StructStringify(instanceValue.Index(i).Interface())
+			} else {
+				code += StructStringify(instanceValue.Index(i).Interface()) + ", "
+			}
 		}
-		code = code[:len(code)-2] + "}"
+		code += "}"
 		return code
 	}
 
-	code := "&" + instanceType.String() + "{"
+	code += instanceType.String() + "{"
 
 	for i := 0; i < instanceType.NumField(); i++ {
 		field := instanceType.Field(i)
