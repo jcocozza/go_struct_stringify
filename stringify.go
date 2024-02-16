@@ -6,10 +6,9 @@ import (
 )
 
 // Return a string representation of a struct instance code.
+// Works recursively for all sub structs as well.
 //
-// Works recursively for all sub structs as well
-//
-// i.e. "&myStruct{ A: a, B: 1}"
+// i.e. "&myStruct{A: a, B: 1}"
 func StructStringify(instance any) string {
 	code := ""
 	instanceValue := reflect.ValueOf(instance)
