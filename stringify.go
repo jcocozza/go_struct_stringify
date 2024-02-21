@@ -33,6 +33,11 @@ func StructStringify(instance any) string {
 		return code
 	}
 
+	if instanceType.Kind() == reflect.String && reflect.TypeOf(instance) != reflect.TypeOf("string") {
+		code += instanceType.String() +"(\"" + fmt.Sprint(instance) + "\")"
+		return code
+	}
+
 	code += instanceType.String() + "{"
 
 	for i := 0; i < instanceType.NumField(); i++ {
