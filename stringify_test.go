@@ -15,7 +15,7 @@ type SuperStructList struct {
 	Lst []*testStruct
 }
 type Unit string
-
+type MiscFloat float64
 func Test_generateStructInstanceCode(t *testing.T) {
 	type args struct {
 		instance interface{}
@@ -29,6 +29,7 @@ func Test_generateStructInstanceCode(t *testing.T) {
 		{"valid sub", args{&SuperStruct{ E: "asdf", F:&testStruct{A: "a", B: 1}}}, "&gostructstringify.SuperStruct{E: \"asdf\", F: &gostructstringify.testStruct{A: \"a\", B: 1}}"},
 		{"valid sub", args{&SuperStructList{ G: "asdf", Lst: []*testStruct{{A: "a", B: 1}, {A: "a", B: 1}}}}, "&gostructstringify.SuperStructList{G: \"asdf\", Lst: []*gostructstringify.testStruct{&gostructstringify.testStruct{A: \"a\", B: 1}, &gostructstringify.testStruct{A: \"a\", B: 1}}}"},
 		{"valid", args{Unit("asdf")}, "gostructstringify.Unit(\"asdf\")"},
+		{"valid", args{MiscFloat(1)}, "gostructstringify.MiscFloat(1)"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

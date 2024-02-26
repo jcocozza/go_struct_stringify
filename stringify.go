@@ -33,8 +33,16 @@ func StructStringify(instance any) string {
 		return code
 	}
 
+	/*
+	TODO: It feels like there should be a way to generalize these basic type cases
+	e.g. type MYCustType string or type MyCustType float64
+	*/
 	if instanceType.Kind() == reflect.String && reflect.TypeOf(instance) != reflect.TypeOf("string") {
-		code += instanceType.String() +"(\"" + fmt.Sprint(instance) + "\")"
+		code += instanceType.String() + "(\"" + fmt.Sprint(instance) + "\")"
+		return code
+	}
+	if instanceType.Kind() == reflect.Float64 && reflect.TypeOf(instance) != reflect.TypeOf(1.00) {
+		code += instanceType.String() +  "(" + fmt.Sprint(instance) + ")"
 		return code
 	}
 
