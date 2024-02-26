@@ -1,6 +1,9 @@
 package gostructstringify
 
-import "testing"
+import (
+	"math"
+	"testing"
+)
 
 type testStruct struct {
 	A string
@@ -30,6 +33,7 @@ func Test_generateStructInstanceCode(t *testing.T) {
 		{"valid sub", args{&SuperStructList{ G: "asdf", Lst: []*testStruct{{A: "a", B: 1}, {A: "a", B: 1}}}}, "&gostructstringify.SuperStructList{G: \"asdf\", Lst: []*gostructstringify.testStruct{&gostructstringify.testStruct{A: \"a\", B: 1}, &gostructstringify.testStruct{A: \"a\", B: 1}}}"},
 		{"valid", args{Unit("asdf")}, "gostructstringify.Unit(\"asdf\")"},
 		{"valid", args{MiscFloat(1)}, "gostructstringify.MiscFloat(1)"},
+	    {"valid", args{math.NaN()}, "math.NaN()"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

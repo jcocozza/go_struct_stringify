@@ -2,6 +2,7 @@ package gostructstringify
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 )
 
@@ -43,6 +44,11 @@ func StructStringify(instance any) string {
 	}
 	if instanceType.Kind() == reflect.Float64 && reflect.TypeOf(instance) != reflect.TypeOf(1.00) {
 		code += instanceType.String() +  "(" + fmt.Sprint(instance) + ")"
+		return code
+	}
+	// when a float ins a nan
+	if instanceType.Kind() == reflect.Float64 &&  math.IsNaN(instanceValue.Float()) {
+		code += "math.NaN()"
 		return code
 	}
 
