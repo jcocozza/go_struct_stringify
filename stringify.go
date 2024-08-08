@@ -59,7 +59,7 @@ func StructStringify(instance any) string {
 		fieldValue := instanceValue.Field(i).Interface()
 
 		switch fieldValue := fieldValue.(type) {
-		case int, float64, bool: // handle basic types
+		case int, float64, float32, bool, uint8, uint16, uint32, uint64: // handle basic types
 			code += fmt.Sprintf("%s: %v, ", field.Name, fieldValue)
 		case string:
 			code += fmt.Sprintf("%s: \"%v\", ", field.Name, fieldValue)
