@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"unsafe"
 )
 
 // Return a string representation of a struct instance code.
@@ -34,43 +35,37 @@ func StructStringify(instance any) string {
 		return code
 	}
 
-	/*
-	TODO: It feels like there should be a way to generalize these basic type cases
-	e.g. type MYCustType string or type MyCustType float64
-	*/
-	if instanceType.Kind() == reflect.String && reflect.TypeOf(instance) != reflect.TypeOf("string") {
-		code += instanceType.String() + "(\"" + fmt.Sprint(instance) + "\")"
-		return code
-	}
-	if instanceType.Kind() == reflect.Float64 && reflect.TypeOf(instance) != reflect.TypeOf(1.00) {
-		code += instanceType.String() +  "(" + fmt.Sprint(instance) + ")"
-		return code
-	}
-	// when a float ins a nan
-	if instanceType.Kind() == reflect.Float64 &&  math.IsNaN(instanceValue.Float()) {
-		code += "math.NaN()"
-		return code
+	switch instanceType.Kind() {
+	case reflect.String:
+	    return fmt.Sprintf("%q", instanceValue.String())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	    return fmt.Sprintf("%d", instanceValue.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	    return fmt.Sprintf("%d", instanceValue.Uint())
+	case reflect.Float32, reflect.Float64:
+	    if math.IsNaN(instanceValue.Float()) {
+		return "math.NaN()"
+	    }
+	    return fmt.Sprintf("%v", instanceValue.Float())
+	case reflect.Bool:
+	    return fmt.Sprintf("%v", instanceValue.Bool())
 	}
 
 	code += instanceType.String() + "{"
 
 	for i := 0; i < instanceType.NumField(); i++ {
 		field := instanceType.Field(i)
-		fieldValue := instanceValue.Field(i).Interface()
 
-		switch fieldValue := fieldValue.(type) {
-		case int, float64, float32, bool, uint8, uint16, uint32, uint64: // handle basic types
-			code += fmt.Sprintf("%s: %v, ", field.Name, fieldValue)
-		case string:
-			code += fmt.Sprintf("%s: \"%v\", ", field.Name, fieldValue)
-		case fmt.Stringer: // handle types implementing Stringer
-			code += fmt.Sprintf("%s: %v, ", field.Name, fieldValue)
-		default: // handle nested structs
-			code += fmt.Sprintf("%s: %v, ", field.Name, StructStringify(fieldValue))
+		if field.PkgPath != "" { // unexported
+    			ptr := unsafe.Pointer(instanceValue.UnsafeAddr())
+			fieldPtr := unsafe.Pointer(uintptr(ptr) + field.Offset)
+			fieldVal := reflect.NewAt(field.Type, fieldPtr).Elem()
+			code += fmt.Sprintf("%s: %v, ", field.Name, StructStringify(fieldVal.Interface()))
+			continue
 		}
+		fieldValue := instanceValue.Field(i).Interface()
+		code += fmt.Sprintf("%s: %s, ", field.Name, StructStringify(fieldValue))
 	}
-
 	code = code[:len(code)-2] + "}"
-
 	return code
 }
