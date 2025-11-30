@@ -23,9 +23,9 @@ func StructStringify(instance any) string {
 	instanceType := instanceValue.Type()
 
 	if instanceType.Kind() == reflect.Slice {
-		code += instanceType.String() +"{"
+		code += instanceType.String() + "{"
 		for i := 0; i < instanceValue.Len(); i++ {
-			if i == instanceValue.Len() - 1 {
+			if i == instanceValue.Len()-1 {
 				code += StructStringify(instanceValue.Index(i).Interface())
 			} else {
 				code += StructStringify(instanceValue.Index(i).Interface()) + ", "
@@ -37,18 +37,18 @@ func StructStringify(instance any) string {
 
 	switch instanceType.Kind() {
 	case reflect.String:
-	    return fmt.Sprintf("%q", instanceValue.String())
+		return fmt.Sprintf("%q", instanceValue.String())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-	    return fmt.Sprintf("%d", instanceValue.Int())
+		return fmt.Sprintf("%d", instanceValue.Int())
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-	    return fmt.Sprintf("%d", instanceValue.Uint())
+		return fmt.Sprintf("%d", instanceValue.Uint())
 	case reflect.Float32, reflect.Float64:
-	    if math.IsNaN(instanceValue.Float()) {
-		return "math.NaN()"
-	    }
-	    return fmt.Sprintf("%v", instanceValue.Float())
+		if math.IsNaN(instanceValue.Float()) {
+			return "math.NaN()"
+		}
+		return fmt.Sprintf("%v", instanceValue.Float())
 	case reflect.Bool:
-	    return fmt.Sprintf("%v", instanceValue.Bool())
+		return fmt.Sprintf("%v", instanceValue.Bool())
 	}
 
 	code += instanceType.String() + "{"
@@ -57,7 +57,7 @@ func StructStringify(instance any) string {
 		field := instanceType.Field(i)
 
 		if field.PkgPath != "" { // unexported
-    			ptr := unsafe.Pointer(instanceValue.UnsafeAddr())
+			ptr := unsafe.Pointer(instanceValue.UnsafeAddr())
 			fieldPtr := unsafe.Pointer(uintptr(ptr) + field.Offset)
 			fieldVal := reflect.NewAt(field.Type, fieldPtr).Elem()
 			code += fmt.Sprintf("%s: %v, ", field.Name, StructStringify(fieldVal.Interface()))
