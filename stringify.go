@@ -14,10 +14,16 @@ import (
 func StructStringify(instance any) string {
 	code := ""
 	instanceValue := reflect.ValueOf(instance)
+	var addr reflect.Value
+
 	if instanceValue.Kind() == reflect.Ptr {
-		// If the input is a pointer, dereference it
-		instanceValue = instanceValue.Elem()
+		addr = instanceValue
+		instanceValue = instanceValue.Elem() // dereference
 		code += "&"
+	} else { // when not a pointer we need to get pointer to it
+		addr = reflect.New(instanceValue.Type())
+		addr.Elem().Set(instanceValue)
+		instanceValue = addr.Elem()
 	}
 
 	instanceType := instanceValue.Type()
@@ -35,19 +41,35 @@ func StructStringify(instance any) string {
 		return code
 	}
 
+	// this is an aberration
 	switch instanceType.Kind() {
 	case reflect.String:
+		if reflect.TypeOf(instance) != reflect.TypeOf("") {
+			return fmt.Sprintf("%s(%q)", instanceType.String(), instanceValue.String())
+		}
 		return fmt.Sprintf("%q", instanceValue.String())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if reflect.TypeOf(instance) != reflect.TypeOf(int(0)) && reflect.TypeOf(instance) != reflect.TypeOf(int8(0)) && reflect.TypeOf(instance) != reflect.TypeOf(int16(0)) && reflect.TypeOf(instance) != reflect.TypeOf(int32(0)) && reflect.TypeOf(instance) != reflect.TypeOf(int64(0)) {
+			return fmt.Sprintf("%s(%d)", instanceType.String(), instanceValue.Int())
+		}
 		return fmt.Sprintf("%d", instanceValue.Int())
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		if reflect.TypeOf(instance) != reflect.TypeOf(uint(0)) && reflect.TypeOf(instance) != reflect.TypeOf(uint8(0)) && reflect.TypeOf(instance) != reflect.TypeOf(uint16(0)) && reflect.TypeOf(instance) != reflect.TypeOf(uint32(0)) && reflect.TypeOf(instance) != reflect.TypeOf(uint64(0)) {
+			return fmt.Sprintf("%s(%d)", instanceType.String(), instanceValue.Uint())
+		}
 		return fmt.Sprintf("%d", instanceValue.Uint())
 	case reflect.Float32, reflect.Float64:
 		if math.IsNaN(instanceValue.Float()) {
 			return "math.NaN()"
 		}
+		if reflect.TypeOf(instance) != reflect.TypeOf(float64(0.00)) && reflect.TypeOf(instance) != reflect.TypeOf(float32(0.00)) {
+			return fmt.Sprintf("%s(%v)", instanceType.String(), instanceValue.Float())
+		}
 		return fmt.Sprintf("%v", instanceValue.Float())
 	case reflect.Bool:
+		if reflect.TypeOf(instance) != reflect.TypeOf(true) {
+			return fmt.Sprintf("%s(%v)", instanceType.String(), instanceValue.Bool())
+		}
 		return fmt.Sprintf("%v", instanceValue.Bool())
 	}
 
