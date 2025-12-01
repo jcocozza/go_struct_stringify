@@ -17,6 +17,9 @@ func StructStringify(instance any) string {
 	var addr reflect.Value
 
 	if instanceValue.Kind() == reflect.Ptr {
+		if instanceValue.IsNil() {
+			return fmt.Sprintf("(*%s)(nil)", instanceValue.Type().Elem())
+		}
 		addr = instanceValue
 		instanceValue = instanceValue.Elem() // dereference
 		code += "&"

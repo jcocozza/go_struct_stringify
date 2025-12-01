@@ -32,6 +32,8 @@ type Unit string
 type MiscFloat float64
 type MiscInt int
 
+var NilTest *TestUnexported = nil
+
 func Test_generateStructInstanceCode(t *testing.T) {
 	type args struct {
 		instance interface{}
@@ -41,6 +43,7 @@ func Test_generateStructInstanceCode(t *testing.T) {
 		args args
 		want string
 	}{
+		{"nil pointer", args{NilTest}, "(*gostructstringify.TestUnexported)(nil)"},
 		{"valid", args{&TestStruct{A: "a", B: 1}}, "&gostructstringify.TestStruct{A: \"a\", B: 1}"},
 		{"valid", args{&TestStruct2{A: 1.01, B: 2.5}}, "&gostructstringify.TestStruct2{A: 1.01, B: 2.5}"},
 		{"unexported", args{TestUnexported{A: 1, b: 1}}, "gostructstringify.TestUnexported{A: 1, b: 1}"},
